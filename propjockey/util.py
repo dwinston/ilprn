@@ -55,3 +55,32 @@ def set_requesters_aliases(votes_collection, requesters_field, alias_map):
         votes_collection.update_one(
             {'_id': d['_id']},
             {'$set': {requesters_field: aliased}})
+
+
+class _NoEHull:
+    def __repr__(self):
+        return "No ehull"
+
+    def __str__(self):
+        return repr(self)
+
+    def __lt__(self, other):
+        return False
+
+    def __le__(self, other):
+        return False
+
+    def __eq__(self, other):
+        return type(self) == type(other)
+
+    def __ne__(self, other):
+        return type(self) != type(other)
+
+    def __gt__(self, other):
+        return True
+
+    def __ge__(self, other):
+        return True
+
+
+no_e_hull = _NoEHull()

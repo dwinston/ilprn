@@ -8,7 +8,7 @@ from flask import g, jsonify, render_template, flash, abort
 from pymongo import ASCENDING, DESCENDING
 from toolz import memoize, merge
 
-from .util import Bunch, get_collection, mongoconnect
+from .util import Bunch, get_collection, mongoconnect, no_e_hull
 from passwordless import Passwordless
 
 
@@ -83,9 +83,13 @@ def tablerow_data(votedoc_entry_wid, prop_missing=True):
         entry, econf.get('description_fields', []))
     entry['id'] = entry[econf['e_id']]
     entry['e_link'] = econf['url_for_entry'].format(e_id=entry['id'])
-    entry['extrasort'] = entry[econf['extrasort']['field']]
+    try:
+        entry['extrasort'] = entry[econf['extrasort']['field']]
+    except KeyError:
+        if econf['extrasort']['field'] == 'e_above_hull':
+            entry['extrasort'] = no_e_hull
     xform = econf['extrasort'].get('transform')
-    if xform:
+    if xform and entry['extrasort'] != no_e_hull:
         entry['extrasort'] = xform(entry['extrasort'])
     if w_id:
         entry['w_link'] = wconf['url_for'].format(w_id=w_id)
